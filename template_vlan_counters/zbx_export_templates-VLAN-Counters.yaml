@@ -1,0 +1,84 @@
+zabbix_export:
+  version: '6.2'
+  date: '2024-06-17T17:01:06Z'
+  template_groups:
+    -
+      uuid: 83761f47e4884f74a1c6851e01014167
+      name: DmOS
+  templates:
+    -
+      uuid: 1ca38b7cd2d14d1bb772540c7659a139
+      template: 'Datacom Template -  DmOS VLAN Counters'
+      name: 'Datacom Template -  DmOS VLAN Counters'
+      description: 'Contadores engress e egress para VLANs.'
+      groups:
+        -
+          name: DmOS
+      discovery_rules:
+        -
+          uuid: 670668029eda4f02ad4a79e0d782e6ae
+          name: 'SNMP Discovery -  Counters'
+          type: SNMP_AGENT
+          snmp_oid: 'discovery[{#SNMPVALUE},DMOS-USER-DEFINED-COUNTERS::countersIngressId]'
+          key: snmp.discovery.counters
+          delay: '60'
+          item_prototypes:
+            -
+              uuid: af49415b398944969457a70f7f933721
+              name: 'Counters Egress ID  {#SNMPINDEX} Value'
+              type: SNMP_AGENT
+              snmp_oid: 'DMOS-USER-DEFINED-COUNTERS::countersEgressValue.{#SNMPINDEX}'
+              key: 'CountersEgressValue[{#SNMPINDEX}]'
+              units: bps
+              preprocessing:
+                -
+                  type: MULTIPLIER
+                  parameters:
+                    - '8'
+                -
+                  type: CHANGE_PER_SECOND
+                  parameters:
+                    - ''
+              tags:
+                -
+                  tag: Application
+                  value: 'Network interfaces'
+            -
+              uuid: a6e6e4d3292f4861a3429b437f3da64a
+              name: 'Counters Ingress ID  {#SNMPINDEX} Value'
+              type: SNMP_AGENT
+              snmp_oid: 'DMOS-USER-DEFINED-COUNTERS::countersIngressValue.{#SNMPINDEX}'
+              key: 'CountersingressValue[{#SNMPINDEX}]'
+              units: bps
+              preprocessing:
+                -
+                  type: CHANGE_PER_SECOND
+                  parameters:
+                    - ''
+                -
+                  type: MULTIPLIER
+                  parameters:
+                    - '8'
+              tags:
+                -
+                  tag: Application
+                  value: 'Network interfaces'
+          graph_prototypes:
+            -
+              uuid: 802eccd4699a4603a6dcb8a12804beb7
+              name: 'Counters ID  {#SNMPINDEX}'
+              graph_items:
+                -
+                  color: 199C0D
+                  calc_fnc: MAX
+                  item:
+                    host: 'Datacom Template -  DmOS VLAN Counters'
+                    key: 'CountersEgressValue[{#SNMPINDEX}]'
+                -
+                  sortorder: '1'
+                  drawtype: FILLED_REGION
+                  color: F63100
+                  calc_fnc: MAX
+                  item:
+                    host: 'Datacom Template -  DmOS VLAN Counters'
+                    key: 'CountersingressValue[{#SNMPINDEX}]'
